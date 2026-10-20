@@ -1,0 +1,63 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "esp32: build",
+      "type": "shell",
+      "command": "C:\\Espressif\\tools\\Microsoft.v6.1.PowerShell_profile.ps1; idf.py build",
+      "options": { "cwd": "${workspaceFolder}\\blinky-idf" },
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "esp32: build raw",
+      "type": "shell",
+      "command": "C:\\Espressif\\tools\\Microsoft.v6.1.PowerShell_profile.ps1; idf.py build",
+      "options": { "cwd": "${workspaceFolder}\\blinky-raw" },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "esp32: flash raw (COM7)",
+      "type": "shell",
+      "command": "C:\\Espressif\\tools\\Microsoft.v6.1.PowerShell_profile.ps1; idf.py -p COM7 flash",
+      "options": { "cwd": "${workspaceFolder}\\blinky-raw" },
+      "problemMatcher": []
+    },
+    {
+      "label": "esp32: flash (COM7)",
+      "type": "shell",
+      "command": "C:\\Espressif\\tools\\Microsoft.v6.1.PowerShell_profile.ps1; idf.py -p COM7 flash",
+      "options": { "cwd": "${workspaceFolder}\\blinky-idf" },
+      "problemMatcher": []
+    },
+    {
+      "label": "esp32: serial monitor (COM6)",
+      "type": "shell",
+      "command": "C:\\Espressif\\tools\\Microsoft.v6.1.PowerShell_profile.ps1; idf.py -p COM6 monitor",
+      "options": { "cwd": "${workspaceFolder}\\blinky-idf" },
+      "isBackground": true,
+      "presentation": { "reveal": "always", "focus": true, "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "esp32: openocd",
+      "type": "process",
+      "command": "C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20260703\\openocd-esp32\\bin\\openocd.exe",
+      "args": [
+        "-s", "C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20260703\\openocd-esp32\\share\\openocd\\scripts",
+        "-c", "set ESP_RTOS none",
+        "-f", "board/esp32s3-builtin.cfg"
+      ],
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "openocd",
+        "pattern": { "regexp": "^(__never_matches__)(.*)(.*)$", "file": 1, "location": 2, "message": 3 },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Open On-Chip Debugger",
+          "endsPattern": "Listening on port 3333 for gdb connections"
+        }
+      }
+    }
+  ]
+}

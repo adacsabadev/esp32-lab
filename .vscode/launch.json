@@ -1,0 +1,47 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ESP32-S3 JTAG (blinky-idf)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}\\blinky-idf\\build\\blinky_idf.elf",
+      "cwd": "${workspaceFolder}\\blinky-idf",
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:\\Espressif\\tools\\xtensa-esp-elf-gdb\\17.1_20260402\\xtensa-esp-elf-gdb\\bin\\xtensa-esp32s3-elf-gdb.exe",
+      "miDebuggerServerAddress": "localhost:3333",
+      "preLaunchTask": "esp32: openocd",
+      "stopAtEntry": false,
+      "setupCommands": [
+        { "text": "set remote hardware-watchpoint-limit 2" },
+        { "text": "set remote hardware-breakpoint-limit 2" }
+      ],
+      "postRemoteConnectCommands": [
+        { "text": "monitor reset halt" },
+        { "text": "maintenance flush register-cache" },
+        { "text": "thb app_main" }
+      ]
+    },
+    {
+      "name": "ESP32-S3 JTAG (blinky-raw)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}\\blinky-raw\\build\\blinky_raw.elf",
+      "cwd": "${workspaceFolder}\\blinky-raw",
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:\\Espressif\\tools\\xtensa-esp-elf-gdb\\17.1_20260402\\xtensa-esp-elf-gdb\\bin\\xtensa-esp32s3-elf-gdb.exe",
+      "miDebuggerServerAddress": "localhost:3333",
+      "preLaunchTask": "esp32: openocd",
+      "stopAtEntry": false,
+      "setupCommands": [
+        { "text": "set remote hardware-watchpoint-limit 2" },
+        { "text": "set remote hardware-breakpoint-limit 2" }
+      ],
+      "postRemoteConnectCommands": [
+        { "text": "monitor reset halt" },
+        { "text": "maintenance flush register-cache" },
+        { "text": "thb app_main" }
+      ]
+    }
+  ]
+}

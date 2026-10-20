@@ -1,0 +1,11 @@
+{
+  "configurations": [
+    {
+      "name": "ESP-IDF",
+      "compileCommands": "${workspaceFolder}/blinky-idf/build/compile_commands.json",
+      "intelliSenseMode": "gcc-x64",
+      "cStandard": "c17"
+    }
+  ],
+  "version": 4
+}
