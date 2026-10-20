@@ -36,13 +36,24 @@ testing the FTDI UART path. COM1 is the unrelated motherboard ACPI serial port.
 - The board has open solder jumpers (`RGB`, `IN-OUT`, `USB-OTG`); the LED worked
   without bridging any.
 
-## Current project
+## Projects
 
-The active project is:
+Repository: `esp32-lab` (https://github.com/adacsabadev/esp32-lab, private).
+Local folder: `E:\VSCODE_COPILOT Root\esp32-lab` (rename from `esp32` once VS Code
+is closed on it; the repo itself is already renamed).
 
-`E:\VSCODE_COPILOT Root\esp32\blinky-idf`
+| Folder | What it is |
+|---|---|
+| `blinky-idf` | ESP-IDF RMT-driven WS2812 blinky on GPIO48 |
+| `blinky-raw` | same blinky with raw-register GPIO and cycle-counter timing |
+| `monitor` | Wi-Fi self-monitor dashboard (plain HTTP, no login): temperature, uptime, CPU per core and task, heap, PSRAM, Wi-Fi, chip info, and a ULP-RISC-V heartbeat widget. Credentials go in `monitor\main\wifi_credentials.h` (gitignored; copy the `.example`). The board must join a 2.4 GHz network. |
 
-Files:
+The debug configuration and tasks in `.vscode\` currently target `blinky-idf`
+and `blinky-raw`; `monitor` has a serial-monitor task (COM7).
+
+Details for the blinky projects below.
+
+`blinky-idf` files:
 
 - `CMakeLists.txt` — ESP-IDF project definition
 - `main\main.c` — green/red RGB blinky, WS2812 on GPIO48 driven via RMT
@@ -51,8 +62,7 @@ Files:
 
 Second project: `blinky-raw` — same blinky, but the pin is driven with raw
 registers (IO_MUX, GPIO matrix, `GPIO.out1_w1ts/w1tc`) and cycle-counter
-bit-banged WS2812 timing at 240 MHz. Verified working on the board. It is the
-firmware currently flashed.
+bit-banged WS2812 timing at 240 MHz. Verified working on the board.
 
 Both projects use `sdkconfig.defaults` (16 MB flash, QIO). Defaults only apply
 when `sdkconfig` is absent: delete it and run `idf.py set-target esp32s3`.
