@@ -20,6 +20,11 @@
 #include "nvs_flash.h"
 #include "driver/temperature_sensor.h"
 #include "wifi_credentials.h"
+#include "ulp_riscv.h"
+#include "ulp_main.h"
+
+extern const uint8_t ulp_main_bin_start[] asm("_binary_ulp_main_bin_start");
+extern const uint8_t ulp_main_bin_end[] asm("_binary_ulp_main_bin_end");
 
 static const char *TAG = "monitor";
 
@@ -41,6 +46,20 @@ static SemaphoreHandle_t s_lock;
 static temperature_sensor_handle_t s_tsens;
 static char s_ip[16] = "-";
 static bool s_sta_mode;
+static bool s_ulp_running;
+static uint32_t s_ulp_rate; /* ULP loop iterations per second, as seen from the main CPU */
+
+static void ulp_start(void)
+{
+    ulp_period_ms = 10;
+    ulp_counter = 0;
+    if (ulp_riscv_load_binary(ulp_main_bin_start, ulp_main_bin_end - ulp_main_bin_start) != ESP_OK) {
+        ESP_LOGE(TAG, "ULP load failed");
+        return;
+    }
+    s_ulp_running = ulp_riscv_run() == ESP_OK;
+    ESP_LOGI(TAG, "ULP-RISC-V %s", s_ulp_running ? "running" : "failed to start");
+}
 
 extern const char index_html_start[] asm("_binary_index_html_start");
 extern const char index_html_end[] asm("_binary_index_html_end");
@@ -51,6 +70,7 @@ static void sampler_task(void *arg)
     static TaskStatus_t cur[MAX_TASKS], prev[MAX_TASKS];
     UBaseType_t prev_n = 0;
     uint32_t prev_total = 0;
+    uint32_t prev_ulp = ulp_counter;
     static const char states[] = {'R', 'r', 'B', 'S', 'D', 'I'};
 
     for (;;) {
@@ -88,6 +108,9 @@ static void sampler_task(void *arg)
             xSemaphoreGive(s_lock);
         }
         memcpy(prev, cur, sizeof(TaskStatus_t) * n);
+        uint32_t u = ulp_counter;
+        s_ulp_rate = u - prev_ulp;
+        prev_ulp = u;
         prev_n = n;
         prev_total = total;
         vTaskDelay(pdMS_TO_TICKS(1000));
@@ -175,6 +198,11 @@ static esp_err_t stats_handler(httpd_req_t *req)
     }
     p = jprintf(b, JSON_SIZE, p, "]");
     xSemaphoreGive(s_lock);
+
+    p = jprintf(b, JSON_SIZE, p,
+                ",\"ulp\":{\"running\":%s,\"counter\":%u,\"rate\":%u,\"period_ms\":%u}",
+                s_ulp_running && s_ulp_rate ? "true" : "false", (unsigned)ulp_counter,
+                (unsigned)s_ulp_rate, (unsigned)ulp_period_ms);
 
     wifi_ap_record_t ap;
     char rssi[24] = "-";
@@ -301,6 +329,8 @@ void app_main(void)
     temperature_sensor_config_t tc = TEMPERATURE_SENSOR_CONFIG_DEFAULT(-10, 80);
     ESP_ERROR_CHECK(temperature_sensor_install(&tc, &s_tsens));
     ESP_ERROR_CHECK(temperature_sensor_enable(s_tsens));
+
+    ulp_start();
 
     xTaskCreate(sampler_task, "sampler", 4096, NULL, 5, NULL);
     wifi_start();

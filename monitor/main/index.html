@@ -38,6 +38,7 @@ async function tick(){
   c+=card('Internal RAM',heap(s.heap));
   if(s.psram.total)c+=card('PSRAM',heap(s.psram));
   c+=card('Wi-Fi',kv(s.wifi));
+  c+=card('ULP coprocessor (RISC-V)','<div class="big" style="color:'+(s.ulp.running?'#4caf50':'#f44336')+'">'+(s.ulp.running?'running':'stopped')+'</div>'+kv({'heartbeat counter':s.ulp.counter,'loops / second':s.ulp.rate,'loop period':s.ulp.period_ms+' ms'}));
   c+=card('Chip',kv(s.chip));
   $('cards').innerHTML=c;
   $('tasks').innerHTML='<tr><th>name</th><th>state</th><th>prio</th><th>CPU %</th><th>stack free</th></tr>'+
