@@ -32,9 +32,8 @@ async function tick(){
   const s=await (await fetch('/api/stats')).json();
   $('err').textContent='';
   let c='';
-  c+=card('Temperature','<div class="big">'+s.temp_c.toFixed(1)+' &deg;C</div>');
+  c+=card('Temperature &amp; uptime','<div class="big">'+s.temp_c.toFixed(1)+' &deg;C</div><div class="big" style="font-size:20px;margin-top:4px">'+up(s.uptime_s)+'</div>'+kv({'last reset':s.reset_reason}));
   c+=card('CPU load ('+s.cpu_mhz+' MHz)',s.cores.map((p,i)=>'core '+i+': '+p.toFixed(0)+'%'+bar(p)).join(''));
-  c+=card('Uptime','<div class="big">'+up(s.uptime_s)+'</div>'+kv({'last reset':s.reset_reason}));
   c+=card('Internal RAM',heap(s.heap));
   if(s.psram.total)c+=card('PSRAM',heap(s.psram));
   c+=card('Wi-Fi',kv(s.wifi));
