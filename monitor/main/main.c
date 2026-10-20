@@ -51,6 +51,9 @@ static uint32_t s_ulp_rate; /* ULP loop iterations per second, as seen from the 
 
 static void ulp_start(void)
 {
+    /* The ULP survives chip resets; stop the old instance before overwriting its memory. */
+    ulp_riscv_timer_stop();
+    ulp_riscv_halt();
     ulp_period_ms = 10;
     ulp_counter = 0;
     if (ulp_riscv_load_binary(ulp_main_bin_start, ulp_main_bin_end - ulp_main_bin_start) != ESP_OK) {
