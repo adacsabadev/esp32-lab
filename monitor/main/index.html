@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ESP32-S3 monitor</title>
+<style>
+body{font:14px system-ui,sans-serif;background:#111;color:#ddd;margin:0;padding:16px}
+h1{font-size:18px;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{background:#1b1b1b;border:1px solid #2a2a2a;border-radius:8px;padding:12px}
+.card h2{font-size:12px;text-transform:uppercase;color:#888;margin:0 0 8px}
+.big{font-size:28px;color:#fff}
+.bar{background:#2a2a2a;height:8px;border-radius:4px;margin:4px 0 8px;overflow:hidden}
+.bar>i{display:block;height:100%;background:#4caf50}
+table{width:100%;border-collapse:collapse}
+td,th{padding:3px 6px;text-align:left;border-bottom:1px solid #262626}
+.k{color:#888}
+#err{color:#f66}
+</style></head><body>
+<h1>ESP32-S3 self monitor <span id="err"></span></h1>
+<div class="grid" id="cards"></div>
+<div class="card" style="margin-top:12px"><h2>Tasks</h2>
+<table id="tasks"></table></div>
+<script>
+const $=id=>document.getElementById(id);
+function bar(p){return '<div class="bar"><i style="width:'+Math.min(100,p)+'%;background:'+(p>85?'#f44336':p>60?'#ff9800':'#4caf50')+'"></i></div>'}
+function kv(o){return '<table>'+Object.entries(o).map(([k,v])=>'<tr><td class="k">'+k+'</td><td>'+v+'</td></tr>').join('')+'</table>'}
+function card(t,h){return '<div class="card"><h2>'+t+'</h2>'+h+'</div>'}
+function kb(n){return n>=1048576?(n/1048576).toFixed(2)+' MB':(n/1024).toFixed(1)+' kB'}
+function up(s){const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return (d?d+'d ':'')+h+'h '+m+'m '+(s%60)+'s'}
+function heap(h){const u=100*(h.total-h.free)/h.total;return bar(u)+kv({used:kb(h.total-h.free)+' / '+kb(h.total),'min free ever':kb(h.min_free),'largest block':kb(h.largest)})}
+async function tick(){
+ try{
+  const s=await (await fetch('/api/stats')).json();
+  $('err').textContent='';
+  let c='';
+  c+=card('Temperature','<div class="big">'+s.temp_c.toFixed(1)+' &deg;C</div>');
+  c+=card('CPU load ('+s.cpu_mhz+' MHz)',s.cores.map((p,i)=>'core '+i+': '+p.toFixed(0)+'%'+bar(p)).join(''));
+  c+=card('Uptime','<div class="big">'+up(s.uptime_s)+'</div>'+kv({'last reset':s.reset_reason}));
+  c+=card('Internal RAM',heap(s.heap));
+  if(s.psram.total)c+=card('PSRAM',heap(s.psram));
+  c+=card('Wi-Fi',kv(s.wifi));
+  c+=card('Chip',kv(s.chip));
+  $('cards').innerHTML=c;
+  $('tasks').innerHTML='<tr><th>name</th><th>state</th><th>prio</th><th>CPU %</th><th>stack free</th></tr>'+
+   s.tasks.map(t=>'<tr><td>'+t.name+'</td><td>'+t.state+'</td><td>'+t.prio+'</td><td>'+t.cpu.toFixed(1)+'</td><td>'+t.stack_free+' B</td></tr>').join('');
+ }catch(e){$('err').textContent='(connection lost)'}
+}
+tick();setInterval(tick,1000);
+</script></body></html>

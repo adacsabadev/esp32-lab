@@ -1,0 +1,15 @@
+menu "Monitor"
+
+    config MON_WIFI_SSID
+        string "Wi-Fi SSID to join (empty = start own access point)"
+        default ""
+
+    config MON_WIFI_PASSWORD
+        string "Wi-Fi password"
+        default ""
+
+    config MON_AP_PASSWORD
+        string "Password of the fallback access point 'esp32s3-monitor' (min 8 chars)"
+        default "esp32monitor"
+
+endmenu

@@ -10,6 +10,15 @@
       "problemMatcher": ["$gcc"]
     },
     {
+      "label": "esp32: monitor serial (COM7)",
+      "type": "shell",
+      "command": "C:\\Espressif\\tools\\Microsoft.v6.1.PowerShell_profile.ps1; idf.py -p COM7 monitor",
+      "options": { "cwd": "${workspaceFolder}\\monitor" },
+      "isBackground": true,
+      "presentation": { "reveal": "always", "focus": true, "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
       "label": "esp32: build raw",
       "type": "shell",
       "command": "C:\\Espressif\\tools\\Microsoft.v6.1.PowerShell_profile.ps1; idf.py build",

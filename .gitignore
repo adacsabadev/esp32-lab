@@ -1,6 +1,7 @@
 build/
 sdkconfig
 sdkconfig.old
+wifi_credentials.h
 managed_components/
 dependencies.lock
 *.log
